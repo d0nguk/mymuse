@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCgCy6CjMmzfojONNVp09zJR2qJ32NLh80',
-    appId: '1:867279425584:android:f8009a4171d2663c039df5',
+    appId: '1:867279425584:android:3d60c756b4ae3803039df5',
     messagingSenderId: '867279425584',
     projectId: 'mymuse-80e26',
     storageBucket: 'mymuse-80e26.appspot.com',
@@ -59,11 +59,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyA0TL6-LGPvQoIaMVvSjRMtYhCocrwAeJ4',
-    appId: '1:867279425584:ios:76dd1da39dbb4da5039df5',
+    appId: '1:867279425584:ios:3e1f75ba71061806039df5',
     messagingSenderId: '867279425584',
     projectId: 'mymuse-80e26',
     storageBucket: 'mymuse-80e26.appspot.com',
-    iosClientId: '867279425584-8uihd4ulbbo0874g0baquucc136png26.apps.googleusercontent.com',
-    iosBundleId: 'com.cobwebsoft.mymuse.mymuse',
+    iosClientId: '867279425584-pk1cqkivaqobitnpufnpbck64tkk8noj.apps.googleusercontent.com',
+    iosBundleId: 'com.cobwebsoft.mymuse',
   );
 }

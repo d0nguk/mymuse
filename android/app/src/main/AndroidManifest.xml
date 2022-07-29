@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.cobwebsoft.mymuse.mymuse">
+    package="com.cobwebsoft.mymuse">
    <application
         android:label="mymuse"
         android:name="${applicationName}"

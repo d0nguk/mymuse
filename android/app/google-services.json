@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:867279425584:android:f8009a4171d2663c039df5",
+        "mobilesdk_app_id": "1:867279425584:android:3d60c756b4ae3803039df5",
         "android_client_info": {
-          "package_name": "com.cobwebsoft.mymuse.mymuse"
+          "package_name": "com.cobwebsoft.mymuse"
         }
       },
       "oauth_client": [
@@ -29,6 +29,13 @@
             {
               "client_id": "867279425584-445hv4ulpt6gvuu0u8to4k5lfq8k06hk.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "867279425584-8uihd4ulbbo0874g0baquucc136png26.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.cobwebsoft.mymuse.mymuse"
+              }
             }
           ]
         }

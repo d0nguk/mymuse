@@ -87,7 +87,7 @@ class ReserveCancelButtonState extends State<ReserveCancelButton> {
       _academyList.remove(removeKey);
 
       // 3. service.user.reserve 저장
-      await store.collection("User").doc(service.user.email).update(
+      await store.collection("Users").doc(service.user.email).update(
         {"Reserve" : service.user.reserve}
       );
       

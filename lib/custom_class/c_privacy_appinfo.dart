@@ -80,7 +80,7 @@ class _AppInfoWidgetState extends State<AppInfoWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("title"),),
+      appBar: AppBar(title: const Text("TEST"),),
       body: FutureBuilder(
         future: getImageURL(),
         //future: saveTextFile(),

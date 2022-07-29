@@ -24,6 +24,7 @@ class _SearchWidgetState extends State<SearchWidget> {
 
   bool isSearch = false;
   String latestContent = "";
+  bool tmp = false;
 
   @override
   void initState() {
@@ -70,7 +71,7 @@ class _SearchWidgetState extends State<SearchWidget> {
   }
 
   ListView getList() {
-    return ListView(children: buttons.length > 0 ? buttons : [Center(child: const Text("검색된 학원이 없습니다."))],);
+    return ListView(children: buttons.isNotEmpty ? buttons : [Center(child: const Text("검색된 학원이 없습니다."))],);
   }
 
   AcademyButton getAcademyButton(AcademyData academy) {
@@ -83,6 +84,9 @@ class _SearchWidgetState extends State<SearchWidget> {
       setState(() {
         isSearch = searchController.text.isNotEmpty;
         latestContent = searchController.text;
+
+        academies.clear();
+        buttons.clear();
       });
     },);
   }
@@ -90,31 +94,36 @@ class _SearchWidgetState extends State<SearchWidget> {
   Future<String> makeQuery() async {
 
     String text = latestContent;
-
+    print(latestContent);
+    
     if (text == "")
       return Future(() => 'TextValue Is Empty');
 
     var store = FirebaseFirestore.instance;
     bool flag = true;
+    
     await store.collection('Academies').where('SearchList', arrayContains: text).get().then((value) {
-
-      academies.clear();
-      buttons.clear();
 
       if(value.docs.isEmpty == true) {
         flag = false;
         return;// Future(() => 'ResultValue Is Null');
       }
 
+      print(academies);
       for (var item in value.docs) {
         AcademyData academy = AcademyData.fromJson(item.data());
         academies.add(academy);
       }
+      print(academies);
 
       setButtonList();
+
+      print("end of then func");
     });
 
-    return Future(() => flag.toString() );
+    print("end of future func");
+
+    return Future(() => "Success" );
   }
 
   @override
@@ -147,14 +156,18 @@ class _SearchWidgetState extends State<SearchWidget> {
           child : isSearch == false ? Text("검색어를 입력해주세요.") : FutureBuilder(
             future : makeQuery(),
             builder : (BuildContext context, AsyncSnapshot snapshot) {
+
+              print("call futurebuilder");
+
               if(snapshot.hasData == false) {
+                print("indicator");
                 return const CircularProgressIndicator();
               }
               else if(snapshot.hasError) {
                 return const Text('error');
               }
               else {
-                print(snapshot.data.toString());
+                print("return listview");
                 return getList();
               }      
             },

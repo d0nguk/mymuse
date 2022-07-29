@@ -50,12 +50,12 @@ class _signup_route extends State<signup_route> {
     } else if (_password.length < 6) {
       setState(() {
         _strength = 0.25;
-        _displayText = 'Your password is too short';
+        _displayText = '비밀번호가 너무 짧습니다.';
       });
     } else if (_password.length < 9) {
       setState(() {
         _strength = 0.5;
-        _displayText = 'Your password is acceptable but not strong';
+        _displayText = '적절하지만 강력하진 않은 비밀번호입니다.';
       });
     } else {
       if (!letterReg.hasMatch(_password) ||
@@ -63,12 +63,12 @@ class _signup_route extends State<signup_route> {
           !speciReg.hasMatch(_password)) {
         setState(() {
           _strength = 0.75;
-          _displayText = 'Your password is strong';
+          _displayText = '강력한 비밀번호입니다.';
         });
       } else {
         setState(() {
           _strength = 1;
-          _displayText = 'Your password is great';
+          _displayText = '매우 강력한 비밀번호입니다.';
         });
       }
     }
@@ -96,15 +96,15 @@ class _signup_route extends State<signup_route> {
 
   void signup() async {
     if(checkController(newuserNameController)){
-      createSnackBar(context, 'Please enter name');
+      createSnackBar(context, '이름을 입력하세요');
       return;
     }
     else if(checkController(newuserEmailController)){
-      createSnackBar(context, 'Please enter email');
+      createSnackBar(context, '이메일을 입력하세요');
       return;
     }
     else if(checkController(newuserPasswordController)){
-      createSnackBar(context, 'Please enter password');
+      createSnackBar(context, '비밀번호를 입력하세요');
       return;
     }
 
@@ -112,7 +112,6 @@ class _signup_route extends State<signup_route> {
     bool bcomplete = true;
 
     try {
-      print('await 1 enter');
       UserCredential userCredential = await instance.createUserWithEmailAndPassword(
         email: newuserEmailController.text,
         password: newuserPasswordController.text
@@ -137,7 +136,7 @@ class _signup_route extends State<signup_route> {
   void setDB() async {
     var store = FirebaseFirestore.instance;
     
-    List<String> favorited = ["오드럼의드럼스쿨"];
+    List<String> favorited = [];
     Map reserve = Map();
 
     final user = <String, dynamic>{
@@ -147,8 +146,6 @@ class _signup_route extends State<signup_route> {
       "Reserve" : reserve,
     };
 
-    print('await 2 enter');
-
     await store.collection('Users').doc(newuserEmailController.text).set(user);
   }
 
@@ -157,7 +154,7 @@ class _signup_route extends State<signup_route> {
     return Scaffold(
 
       appBar: AppBar(
-        title: const Text("SignUp"),
+        title: const Text("회원 가입"),
         backgroundColor: Colors.purple,
       ),
       body: Container(
@@ -166,7 +163,7 @@ class _signup_route extends State<signup_route> {
           child:
               Column(mainAxisAlignment: MainAxisAlignment.start, children: [
               InputField(
-                hintText: 'name',
+                hintText: '이름',
                 padding: const EdgeInsets.only(left: 10),
                 margin: const EdgeInsets.fromLTRB(15, 20, 15, 0),
                 controller: newuserNameController,
@@ -175,7 +172,7 @@ class _signup_route extends State<signup_route> {
 
             // Email Address
               InputField(
-                hintText: 'Email Address',
+                hintText: '이메일',
                 padding: const EdgeInsets.only(left: 10),
                 margin: const EdgeInsets.fromLTRB(15, 20, 15, 0),
                 controller: newuserEmailController,
@@ -184,7 +181,7 @@ class _signup_route extends State<signup_route> {
 
             // Password
               InputField(
-                hintText: 'Password',
+                hintText: '비밀번호',
                 padding: const EdgeInsets.only(left: 10),
                 margin: const EdgeInsets.fromLTRB(15, 20, 15, 5),
                 isPassword: true,
@@ -210,7 +207,7 @@ class _signup_route extends State<signup_route> {
               style: const TextStyle(fontSize: 10),
             ),
         
-            FilledButton(hintText: Text("Sign Up"), func: signup, mainColor: Colors.purple,)
+            FilledButton(hintText: Text("회원 가입"), width: 120, func: signup, mainColor: Colors.purple,)
           ]
         )
       )

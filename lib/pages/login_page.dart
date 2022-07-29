@@ -53,10 +53,10 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<bool> signin() async {
     if (checkController(emailController)) {
-      createSnackBar(context, 'Please enter email');
+      createSnackBar(context, '이메일을 입력하세요.');
       return false;
     } else if (checkController(passwordController)) {
-      createSnackBar(context, 'Please enter password');
+      createSnackBar(context, '비밀번호를 입력하세요.');
       return false;
     }
 
@@ -108,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       await instance.currentUser!.sendEmailVerification();
-      createSnackBar(context, 'Please verify your email');
+      createSnackBar(context, '인증 메일을 발송했습니다. 인증을 해주세요.');
     }
 
     return bcomplete;
@@ -288,14 +288,14 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   InputField(
-                    hintText: 'Email Address',
+                    hintText: '이메일',
                     padding: const EdgeInsets.only(left: 10),
                     margin: const EdgeInsets.fromLTRB(15, 20, 15, 0),
                     controller: emailController,
                     type: TextInputType.emailAddress,
                   ),
                   InputField(
-                    hintText: 'Password',
+                    hintText: '비밀번호',
                     padding: const EdgeInsets.only(left: 10),
                     margin: const EdgeInsets.fromLTRB(15, 20, 15, 25),
                     isPassword: true,
@@ -303,7 +303,7 @@ class _LoginPageState extends State<LoginPage> {
                     type: TextInputType.visiblePassword,
                   ),
           
-                  FilledButton(hintText: const Text('Sign in'), func: _showDialog, mainColor: MyApp.mainColor),
+                  FilledButton(hintText: const Text('로그인'), func: _showDialog, mainColor: MyApp.mainColor),
           
                   const Padding(padding: EdgeInsets.only(top:30)),
           
@@ -312,22 +312,22 @@ class _LoginPageState extends State<LoginPage> {
                       primary: Colors.black,
                     ),
                     onPressed: signup,
-                    child: const Text('Sign up'),
+                    child: const Text('회원 가입'),
                   ),
                   TextButton(
                     style: TextButton.styleFrom(
                       primary: Colors.black,
                     ),
                     onPressed: reset,
-                    child: const Text('Forgot Password'),
+                    child: const Text('비밀번호 초기화'),
                   ),
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      primary: Colors.black,
-                    ),
-                    onPressed: testDB,
-                    child: const Text('DB Test Button'),
-                  ),
+                  // TextButton(
+                  //   style: TextButton.styleFrom(
+                  //     primary: Colors.black,
+                  //   ),
+                  //   onPressed: testDB,
+                  //   child: const Text('DB Test Button'),
+                  // ),
                 ],
               ),
             ),

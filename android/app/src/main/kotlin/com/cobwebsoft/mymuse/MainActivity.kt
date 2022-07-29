@@ -1,4 +1,4 @@
-package com.cobwebsoft.mymuse.mymuse
+package com.cobwebsoft.mymuse
 
 import io.flutter.embedding.android.FlutterActivity
 

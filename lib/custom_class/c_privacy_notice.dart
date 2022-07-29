@@ -66,7 +66,13 @@ class _NoticeWidgetState extends State<NoticeWidget> {
         future: getNotice(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if(snapshot.hasData == false) {
-            return const Text("Loading");
+            return const Center(
+              child: SizedBox(
+                width: 50,
+                height: 50,
+                child: CircularProgressIndicator(),
+              ),
+            );
           }
           else if(snapshot.hasError) { 
             return const Text("Error");
