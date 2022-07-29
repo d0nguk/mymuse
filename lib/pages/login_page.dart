@@ -33,6 +33,8 @@ class _LoginPageState extends State<LoginPage> {
   bool isemptyemail = true;
   bool isemptypassword = true;
 
+  bool progressVisible = false;
+
   CustomUser user = CustomUser('','', [], Map());
 
   //BuildContext _context;
@@ -49,14 +51,18 @@ class _LoginPageState extends State<LoginPage> {
     return controller.text.isEmpty;
   }
 
-  void signin() async {
+  Future<bool> signin() async {
     if (checkController(emailController)) {
       createSnackBar(context, 'Please enter email');
-      return;
+      return false;
     } else if (checkController(passwordController)) {
       createSnackBar(context, 'Please enter password');
-      return;
+      return false;
     }
+
+    setState(() {
+      progressVisible = true;
+    });
 
     var instance = FirebaseAuth.instance;
     bool bcomplete = true;
@@ -76,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     if(!bcomplete){
-      return;
+      return false;
     }
 
     if (instance.currentUser!.emailVerified) {
@@ -84,23 +90,49 @@ class _LoginPageState extends State<LoginPage> {
       String email = instance.currentUser!.email.toString();
 
       await getDataByDB(email);
-      createSnackBar(context, 'Hello!');
 
       service.curUser = user;
 
       //Navigator push signin->main
 
-      Navigator.pushReplacement<void, void>(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => MainPage(),
-        ),
+      Navigator.pushAndRemoveUntil(
+        context, 
+        MaterialPageRoute(builder: (context) => MainPage()), 
+        (route) => false
       );
-    } 
+    }
     else {
+
+      setState(() {
+        progressVisible = false;
+      });
+
       await instance.currentUser!.sendEmailVerification();
       createSnackBar(context, 'Please verify your email');
     }
+
+    return bcomplete;
+  }
+
+  void _showDialog() async {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) => const Center(
+        child: SizedBox(
+          width: 50,
+          height: 50,
+          child: CircularProgressIndicator(),
+        ),
+      ),
+    );
+
+    bool res = false;
+
+    res = await signin();
+
+    if(!res)
+      Navigator.of(context).pop();
   }
 
   Future<void> getDataByDB(String email) async{
@@ -126,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
     return;
   }
 
-  Future<void> saveDBDataSample() async {
+  Future<void> testDB() async {
 /*
     String academyName = "임시학원3";
     var members = Map();
@@ -194,6 +226,8 @@ class _LoginPageState extends State<LoginPage> {
     await store.collection("Notice").doc(noticeHead).set(notice.toJson());
 */
 
+/*
+
     final ref = FirebaseStorage.instance.ref().child('Academy/임시학원3/icon.png');
 
     String res = "";
@@ -208,7 +242,16 @@ class _LoginPageState extends State<LoginPage> {
     on FirebaseException catch (e) {
       res = e.message.toString();
     }
+*/
 
+    var store = FirebaseFirestore.instance;
+    var v = await store.collection("Academies").doc("오드럼의드럼스쿨").get();
+
+    var members = await v.get("Members");
+
+    print(members["김동욱"]["Auth"]);
+
+//    print(await v.get("Members"));
   }
 
   void signup() { 
@@ -227,66 +270,80 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.only(top: 50),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const Text(
-                'my muse',
-                style: TextStyle(
-                  fontSize: 44,
-                  color: Colors.black,
-                ),
+    return Stack(
+      children: [
+        Scaffold(
+          body: SafeArea(
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.only(top: 50),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Text(
+                    'my muse',
+                    style: TextStyle(
+                      fontSize: 44,
+                      color: Colors.black,
+                    ),
+                  ),
+                  InputField(
+                    hintText: 'Email Address',
+                    padding: const EdgeInsets.only(left: 10),
+                    margin: const EdgeInsets.fromLTRB(15, 20, 15, 0),
+                    controller: emailController,
+                    type: TextInputType.emailAddress,
+                  ),
+                  InputField(
+                    hintText: 'Password',
+                    padding: const EdgeInsets.only(left: 10),
+                    margin: const EdgeInsets.fromLTRB(15, 20, 15, 25),
+                    isPassword: true,
+                    controller: passwordController,
+                    type: TextInputType.visiblePassword,
+                  ),
+          
+                  FilledButton(hintText: const Text('Sign in'), func: _showDialog, mainColor: MyApp.mainColor),
+          
+                  const Padding(padding: EdgeInsets.only(top:30)),
+          
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      primary: Colors.black,
+                    ),
+                    onPressed: signup,
+                    child: const Text('Sign up'),
+                  ),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      primary: Colors.black,
+                    ),
+                    onPressed: reset,
+                    child: const Text('Forgot Password'),
+                  ),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      primary: Colors.black,
+                    ),
+                    onPressed: testDB,
+                    child: const Text('DB Test Button'),
+                  ),
+                ],
               ),
-              InputField(
-                hintText: 'Email Address',
-                padding: const EdgeInsets.only(left: 10),
-                margin: const EdgeInsets.fromLTRB(15, 20, 15, 0),
-                controller: emailController,
-                type: TextInputType.emailAddress,
-              ),
-              InputField(
-                hintText: 'Password',
-                padding: const EdgeInsets.only(left: 10),
-                margin: const EdgeInsets.fromLTRB(15, 20, 15, 25),
-                isPassword: true,
-                controller: passwordController,
-                type: TextInputType.visiblePassword,
-              ),
-      
-              FilledButton(hintText: const Text('Sign in'), func: signin, mainColor: MyApp.mainColor),
-      
-              const Padding(padding: EdgeInsets.only(top:30)),
-      
-              TextButton(
-                style: TextButton.styleFrom(
-                  primary: Colors.black,
-                ),
-                onPressed: signup,
-                child: const Text('Sign up'),
-              ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  primary: Colors.black,
-                ),
-                onPressed: reset,
-                child: const Text('Forgot Password'),
-              ),
-              // TextButton(
-              //   style: TextButton.styleFrom(
-              //     primary: Colors.black,
-              //   ),
-              //   onPressed: saveDBDataSample,
-              //   child: const Text('DB Test Button'),
-              // ),
-            ],
+            ),
           ),
         ),
-      ),
+        // Visibility(
+        //   visible: progressVisible,
+        //   child: const Center(
+        //     child: SizedBox(
+        //       width: 250,
+        //       height: 250,
+        //       child: CircularProgressIndicator(),
+        //     ),
+        //   ),
+        // ),
+      ],
     );
   }
 }

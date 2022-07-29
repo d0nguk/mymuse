@@ -19,27 +19,35 @@ class MyService {
     Map reserve = Map();
 
     _user = CustomUser(email, name, favorited, reserve);
+
+    String academyName = "dummy";
+    List<String> memberList = [];
+    Map<String, String> reserveList = Map();
+    Map<String, dynamic> settings = Map();
+    List<String> searchList = [];
+
+    _academy = AcademyData(academyName, memberList, reserveList, settings, searchList);
   }
 
   late CustomUser _user;
-  late String _academy;
-  late int _authority;
-  late int _room;
-  late Map _reserveList;
+  late AcademyData _academy;
+  //late int _authority;
+  //late int _room;
+  //late Map _reserveList;
 
   //short getter for my variable
   CustomUser get user => _user;
-  String get academy => _academy;
-  int get authority => _authority;
-  int get room => _room;
-  Map get reserve => _reserveList;
+  AcademyData get academy => _academy;
+  //int get authority => _authority;
+  //int get room => _room;
+  //Map get reserve => _reserveList;
 
   //short setter for my variable
   set curUser(CustomUser value) => _user = value;
-  set curAcademy(String value) => _academy = value;
-  set curAuthority(int value) => _authority = value;
-  set curRoom(int value) => _room = value;
-  set curReserve(Map value) => _reserveList = value;
+  set curAcademy(AcademyData value) => _academy = value;
+  //set curAuthority(int value) => _authority = value;
+  //set curRoom(int value) => _room = value;
+  //set curReserve(Map value) => _reserveList = value;
 
   void navigatorPush(BuildContext context, dynamic dst) {
       Navigator.push(
@@ -161,8 +169,8 @@ bool checkReserveCount(DateTime _time) {
 
   List<String> timeList = [];
 
-  for(var item in service.reserve.keys) {
-    if(service.reserve[item].toString().compareTo(service.user.name) == 0) {
+  for(var item in service.academy.reserve.keys) {
+    if(service.academy.reserve[item].toString().compareTo(service.user.name) == 0) {
       timeList.add(item.toString().substring(0,8));
     }
   }

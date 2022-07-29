@@ -92,7 +92,7 @@ class _TabInformState extends State<TabInform> {
 
   Future<String> getAcademyTextData() async {
 
-    final ref = FirebaseStorage.instance.ref().child('Academy/${service.academy}/Info.txt');
+    final ref = FirebaseStorage.instance.ref().child('Academy/${service.academy.name}/Info.txt');
     String res = "";
 
     try {

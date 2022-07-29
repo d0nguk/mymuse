@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 import '../pages/acdemey_info_page.dart';
+import 'c_academy_data.dart';
 import 'c_global.dart';
 
 class AcademyButton extends StatefulWidget {
@@ -78,24 +79,38 @@ class _AcademyButtonState extends State<AcademyButton> {
 
     return Future(() => "Success");
   }
+  
+  late BuildContext dialogContext;
 
   InkWell getButton(bool bLoad) {
     return InkWell(
       onTap: () async {
+        showDialog(
+          context: context, 
+          barrierDismissible: false,
+          builder: (BuildContext context) {
 
-        service.curAcademy = academyName;
+            dialogContext = context;
+
+            return const Center(
+              child: SizedBox(
+                width: 50,
+                height: 50,
+                child: CircularProgressIndicator()
+              )
+            );
+          }
+        );
 
         var store = FirebaseFirestore.instance;
         var v = await store.collection("Academies").doc(academyName).get();
+        service.curAcademy = AcademyData.fromJson(v.data()!);
         _reserveList = v.get("Reserve");
         var user = await v.get("Members");
 
-        service.curAuthority = user[service.user.name]["Auth"];
-        service.curRoom = await v.get("Settings")["Rooms"];
-
         //print(service.authority);
 
-        service.curReserve = _reserveList;
+        Navigator.pop(dialogContext);
 
         service.navigatorPush(context, TabPage());
       },

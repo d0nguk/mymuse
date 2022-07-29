@@ -23,6 +23,7 @@ class _SearchWidgetState extends State<SearchWidget> {
   final Debouncer _debouncer = Debouncer(1000);
 
   bool isSearch = false;
+  String latestContent = "";
 
   @override
   void initState() {
@@ -69,7 +70,7 @@ class _SearchWidgetState extends State<SearchWidget> {
   }
 
   ListView getList() {
-    return ListView(children: buttons,);
+    return ListView(children: buttons.length > 0 ? buttons : [Center(child: const Text("검색된 학원이 없습니다."))],);
   }
 
   AcademyButton getAcademyButton(AcademyData academy) {
@@ -77,18 +78,18 @@ class _SearchWidgetState extends State<SearchWidget> {
   }
 
   void onSearchChanged() {
-
     //_debouncer.run( () => makeQuery() );
     _debouncer.run(() {
       setState(() {
         isSearch = searchController.text.isNotEmpty;
+        latestContent = searchController.text;
       });
     },);
   }
 
   Future<String> makeQuery() async {
 
-    String text = searchController.text;
+    String text = latestContent;
 
     if (text == "")
       return Future(() => 'TextValue Is Empty');
@@ -127,7 +128,7 @@ class _SearchWidgetState extends State<SearchWidget> {
               InputField(
                 padding: const EdgeInsets.only(left: 10),
                 margin: const EdgeInsets.fromLTRB(15, 20, 15, 0),
-                hintText: 'Search Academy name',
+                hintText: '검색할 학원 이름을 입력해주세요.',
                 controller: searchController,
                 type: TextInputType.text,
               ),
@@ -143,7 +144,7 @@ class _SearchWidgetState extends State<SearchWidget> {
         ),
         Flexible(
           flex:9, 
-          child : isSearch == false ? Text("Please Search") : FutureBuilder(
+          child : isSearch == false ? Text("검색어를 입력해주세요.") : FutureBuilder(
             future : makeQuery(),
             builder : (BuildContext context, AsyncSnapshot snapshot) {
               if(snapshot.hasData == false) {
@@ -153,6 +154,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                 return const Text('error');
               }
               else {
+                print(snapshot.data.toString());
                 return getList();
               }      
             },

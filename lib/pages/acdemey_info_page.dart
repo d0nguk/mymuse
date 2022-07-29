@@ -29,7 +29,7 @@ class _TabPageState extends State<TabPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    _favorited = service.user.favorited.contains(service.academy);
+    _favorited = service.user.favorited.contains(service.academy.name);
   }
 
   void Reservation() {
@@ -49,7 +49,7 @@ class _TabPageState extends State<TabPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(service.academy),
+        title: Text(service.academy.name),
         actions: [
           InkWell(
             onTap: () async {
@@ -60,10 +60,12 @@ class _TabPageState extends State<TabPage> with TickerProviderStateMixin {
               List<dynamic> favoritedList = await v.get("Favorited");
 
               if(_favorited) {
-                favoritedList.remove(service.academy);
+                favoritedList.remove(service.academy.name);
+                service.user.favorited.remove(service.academy.name);
               }
               else {
-                favoritedList.add(service.academy);
+                favoritedList.add(service.academy.name);
+                service.user.favorited.add(service.academy.name);
               }
 
               await store.collection("Users").doc(service.user.email).update(
