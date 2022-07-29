@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "867279425584",
+    "project_id": "mymuse-80e26",
+    "storage_bucket": "mymuse-80e26.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:867279425584:android:f8009a4171d2663c039df5",
+        "android_client_info": {
+          "package_name": "com.cobwebsoft.mymuse.mymuse"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "867279425584-445hv4ulpt6gvuu0u8to4k5lfq8k06hk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgCy6CjMmzfojONNVp09zJR2qJ32NLh80"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "867279425584-445hv4ulpt6gvuu0u8to4k5lfq8k06hk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
