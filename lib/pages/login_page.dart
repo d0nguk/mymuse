@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 //import 'package:flutter/services.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../custom_class/c_academy_data.dart';
 import '../custom_class/c_filledbutton.dart';
@@ -35,9 +37,62 @@ class _LoginPageState extends State<LoginPage> {
 
   bool progressVisible = false;
 
-  CustomUser user = CustomUser('','', [], Map());
+  CustomUser user = CustomUser('','', [], [], Map());
+
+  late String userInfo = "";
+  late final storage = new FlutterSecureStorage();
 
   //BuildContext _context;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) { 
+      _asyncLoadMethod();
+    });
+  }
+
+  _asyncLoadMethod() async {
+    //userInfo = (await storage.read(key: "login"))!;
+    String? tmp = await storage.read(key: "login");
+
+    userInfo = tmp ?? "";
+
+    await _asyncNavigatorMethod();
+  }
+
+  _asyncMakeMethod() async {
+
+    print(storage);
+
+    await storage.write(
+      key: "login",
+      value: "email ${emailController.text} password ${passwordController.text}",
+    );
+
+    userInfo = "email ${emailController.text} password ${passwordController.text}";
+  }
+
+  _asyncNavigatorMethod() async {
+    if(userInfo.isNotEmpty) {
+      String email = userInfo.split(" ")[1];
+
+      await getDataByDB(email);
+
+      service.curUser = user;
+
+      //Navigator push signin->main
+
+      Navigator.pushAndRemoveUntil(
+        context, 
+        MaterialPageRoute(builder: (context) => MainPage()), 
+        (route) => false
+      );
+    }
+
+    FlutterNativeSplash.remove();
+  }
 
   @override
   void dispose() {
@@ -86,6 +141,15 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     if (instance.currentUser!.emailVerified) {
+
+      if(userInfo.isEmpty) {
+        await _asyncMakeMethod();
+      }
+
+      await _asyncNavigatorMethod();
+
+/*
+
       //String name = instance.currentUser!.displayName.toString();
       String email = instance.currentUser!.email.toString();
 
@@ -100,6 +164,9 @@ class _LoginPageState extends State<LoginPage> {
         MaterialPageRoute(builder: (context) => MainPage()), 
         (route) => false
       );
+
+      */
+
     }
     else {
 
@@ -109,22 +176,39 @@ class _LoginPageState extends State<LoginPage> {
 
       await instance.currentUser!.sendEmailVerification();
       createSnackBar(context, '인증 메일을 발송했습니다. 인증을 해주세요.');
+
+      bcomplete = false;
     }
 
     return bcomplete;
   }
 
   void _showDialog() async {
+
+    late BuildContext dialogContext;
+
     showDialog(
       barrierDismissible: false,
       context: context,
-      builder: (BuildContext context) => const Center(
-        child: SizedBox(
-          width: 50,
-          height: 50,
-          child: CircularProgressIndicator(),
-        ),
-      ),
+      builder: (BuildContext _context) { 
+
+        dialogContext = _context;
+
+        return const Center(
+          child: SizedBox(
+            width: 50,
+            height: 50,
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+      // builder: (BuildContext context) => const Center(
+      //   child: SizedBox(
+      //     width: 50,
+      //     height: 50,
+      //     child: CircularProgressIndicator(),
+      //   ),
+      // ),
     );
 
     bool res = false;
@@ -132,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
     res = await signin();
 
     if(!res)
-      Navigator.of(context).pop();
+      Navigator.pop(dialogContext);
   }
 
   Future<void> getDataByDB(String email) async{
@@ -140,6 +224,7 @@ class _LoginPageState extends State<LoginPage> {
 
     String name = "";
     List<String> favorited = [];
+    List<String> manage = [];
     Map reserve = Map();
 
     var v = await store.collection('Users').doc(email).get();
@@ -147,12 +232,18 @@ class _LoginPageState extends State<LoginPage> {
     for (var item in await v.get('Favorited')) {
       favorited.add(item);
     }
+
+    for (var item in await v.get('Manage')) {
+      manage.add(item);
+    }
+
     name = await v.get('Name');
     reserve = await v.get('Reserve');
 
     user.email = email;
     user.name = name;
     user.favorited = favorited;
+    user.manage = manage;
     user.reserve = reserve;
 
     return;
@@ -244,12 +335,19 @@ class _LoginPageState extends State<LoginPage> {
     }
 */
 
+    String _name = "임시학원3";
+    String _type = "학원";
+
     var store = FirebaseFirestore.instance;
-    var v = await store.collection("Academies").doc("오드럼의드럼스쿨").get();
+    var v = await store.collection("Academies").doc(_name).get();
 
-    var members = await v.get("Members");
+    var _settings = await v.get("Settings");
 
-    print(members["김동욱"]["Auth"]);
+    _settings["Type"] = _type;
+
+    await store.collection("Academies").doc(_name).update(
+      {"Settings" : _settings}
+    );
 
 //    print(await v.get("Members"));
   }

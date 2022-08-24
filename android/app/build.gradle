@@ -35,7 +35,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 33//flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -59,7 +59,7 @@ android {
         // versionCode 1
         // versionName "0.0.1"
         minSdkVersion 19//flutter.minSdkVersion
-        targetSdkVersion 28//flutter.targetSdkVersion
+        targetSdkVersion 31//flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

@@ -14,8 +14,10 @@ class ReserveWidget extends StatefulWidget {
 
 class _ReserveWidgetState extends State<ReserveWidget> {
 
-  DateTime _focusedDay = DateTime.now();
-  DateTime _selectedDay = DateTime.now();
+  late DateTime _focusedDay = DateTime.now();
+  late DateTime _selectedDay = DateTime.now();
+
+  late DateTime _firstDay = DateTime.now();
 
   //late ReserveTable res;
   late Map _reserveList;
@@ -25,11 +27,33 @@ class _ReserveWidgetState extends State<ReserveWidget> {
   List<String> _roomList = [];
   dynamic _selectedRoom;
 
+  late bool bContainUser = false;
+
   @override
   void initState() {
     super.initState();
 
-    addDays = service.academy.members[service.user.name]["Auth"] <= 2 ? 21 : 14;
+    Map<String, dynamic> members = service.academy.members;
+
+    if(members.containsKey(service.user.name)) {
+
+      int auth = service.academy.members[service.user.name]["Auth"]; 
+
+      addDays = auth <= 2 ? 21 : (auth <= 3 ? 14 : 7);
+
+      if(auth == 4) {
+        _firstDay = DateTime.now().add(const Duration(days:7));
+      }
+
+      bContainUser = true;
+    }
+    else {
+      _firstDay = _firstDay.add(const Duration(days: 7));
+      addDays = 7;
+    }
+
+    _focusedDay = _firstDay;
+    _selectedDay = _firstDay;
 
     _roomList = List.generate(service.academy.settings["Rooms"], (index) => "연습실${index+1}");
     _selectedRoom = _roomList[0];
@@ -49,6 +73,26 @@ class _ReserveWidgetState extends State<ReserveWidget> {
     var store = FirebaseFirestore.instance;
     //var v = await store.collection("Academies").doc(service.academy.name).get();
     var v = await store.collection("Academies").doc(service.academy.name).get();
+
+    if(!bContainUser){
+      Map users = await v.get("Members");
+
+      var member = Map();
+
+      member["Name"] = service.user.name;
+      member["Auth"] = 4;
+      member["Denied"] = "99999999";
+      member["Warning"] = 0;
+      member["Reserve"] = [];
+
+      users[service.user.name] = member;
+
+      await store.collection("Academies").doc(service.academy.name).update(
+        {"Members" : users}
+      );
+
+      bContainUser = true;
+    }
 
     String result = "";
 
@@ -70,108 +114,113 @@ class _ReserveWidgetState extends State<ReserveWidget> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Scaffold(
-          appBar: AppBar(
-            title: const Text("Reserve"),
-            actions: <Widget>[
-              DropdownButton(
-                value: _selectedRoom,
-                items: _roomList.map((value) =>  DropdownMenuItem(
-                  value: value,
-                  child: Text(value))
-                ).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedRoom = value;
-
-                    reserveTable.changeButtons(_selectedDay, _roomList.indexOf(value.toString()));
-                  });
-                },
-              )
-            ],
-          ),
-          body: SafeArea(
-            child:FutureBuilder(
-              future: getReserveList(),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if(snapshot.hasData == false) {
-                  return Center(
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      child: const CircularProgressIndicator()
-                    ),
-                  );
-                }
-                else if(snapshot.hasError) {
-                  return const Text("Load Failed");
-                }
-                else {
-                  if(snapshot.data.toString().compareTo("Success") != 0) {
-                    return Text(snapshot.data.toString());
-                  }
-                  else {
-                    return RefreshIndicator(
-                      onRefresh: () async {
-                        await getReserveList();
-                  
-                        setState(() {
-                          reserveTable.changeButtons(_selectedDay, _roomList.indexOf(_selectedRoom));
-                        });
-                  
-                        return Future<void>.delayed(const Duration(seconds: 0));
-                      },
-                      child: Column(
-                        children: [
-                          TableCalendar(
-                            locale: 'ko-KR',
-                            firstDay: DateTime.now(),
-                            lastDay: DateTime.now().add(Duration(days: addDays)),
-                            focusedDay: _focusedDay,
-                            calendarFormat: CalendarFormat.twoWeeks,
-                            headerStyle: const HeaderStyle(
-                              formatButtonVisible: false,
-                              titleCentered: true,
-                              leftChevronVisible: true,
-                              rightChevronVisible: true,
-                            ),
-                            calendarStyle: const CalendarStyle(
-                              outsideDaysVisible: false,
-                            ),
-                            availableGestures: AvailableGestures.none,
-                            selectedDayPredicate: (day) {
-                              return isSameDay(day, _selectedDay);
-                            },
-                            onDaySelected: (selectedDay, focusedDay) {
-                              setState(() {
-                                _selectedDay = selectedDay;
-                                _focusedDay = focusedDay;
-                    
-                                reserveTable.changeButtons(selectedDay, _roomList.indexOf(_selectedRoom));
-                              });
-                            },
-                          ),
-                          Expanded(
-                            child: GridView(
-                              //physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 3,
-                                mainAxisSpacing: 5.0,
-                                crossAxisSpacing: 5.0,
-                              ),
-                              padding: const EdgeInsets.all(5),
-                              children: reserveTable.getButtons(),
-                            ),
-                          ),
-                        ],
+        WillPopScope(
+          child: Scaffold(
+            appBar: AppBar(
+              title: const Text("예약"),
+              actions: <Widget>[
+                DropdownButton(
+                  value: _selectedRoom,
+                  items: _roomList.map((value) =>  DropdownMenuItem(
+                    value: value,
+                    child: Text(value))
+                  ).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedRoom = value;
+        
+                      reserveTable.changeButtons(_selectedDay, _roomList.indexOf(value.toString()));
+                    });
+                  },
+                )
+              ],
+            ),
+            body: SafeArea(
+              child:FutureBuilder(
+                future: getReserveList(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if(snapshot.hasData == false) {
+                    return Center(
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        child: const CircularProgressIndicator()
                       ),
                     );
                   }
+                  else if(snapshot.hasError) {
+                    return const Text("Load Failed");
+                  }
+                  else {
+                    if(snapshot.data.toString().compareTo("Success") != 0) {
+                      return Text(snapshot.data.toString());
+                    }
+                    else {
+                      return RefreshIndicator(
+                        onRefresh: () async {
+                          await getReserveList();
+                    
+                          setState(() {
+                            reserveTable.changeButtons(_selectedDay, _roomList.indexOf(_selectedRoom));
+                          });
+                    
+                          return Future<void>.delayed(const Duration(seconds: 0));
+                        },
+                        child: Column(
+                          children: [
+                            TableCalendar(
+                              locale: 'ko-KR',
+                              firstDay: _firstDay,
+                              lastDay: _firstDay.add(Duration(days: addDays)),
+                              focusedDay: _focusedDay,
+                              calendarFormat: CalendarFormat.twoWeeks,
+                              headerStyle: const HeaderStyle(
+                                formatButtonVisible: false,
+                                titleCentered: true,
+                                leftChevronVisible: true,
+                                rightChevronVisible: true,
+                              ),
+                              calendarStyle: const CalendarStyle(
+                                outsideDaysVisible: false,
+                              ),
+                              availableGestures: AvailableGestures.none,
+                              selectedDayPredicate: (day) {
+                                return isSameDay(day, _selectedDay);
+                              },
+                              onDaySelected: (selectedDay, focusedDay) {
+                                setState(() {
+                                  _selectedDay = selectedDay;
+                                  _focusedDay = focusedDay;
+                      
+                                  reserveTable.changeButtons(selectedDay, _roomList.indexOf(_selectedRoom));
+                                });
+                              },
+                            ),
+                            Expanded(
+                              child: GridView(
+                                //physics: const NeverScrollableScrollPhysics(),
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  childAspectRatio: 3,
+                                  mainAxisSpacing: 5.0,
+                                  crossAxisSpacing: 5.0,
+                                ),
+                                padding: const EdgeInsets.all(5),
+                                children: reserveTable.getButtons(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  }
                 }
-              }
+              ),
             ),
           ),
+          onWillPop: _visible ? () {
+            return Future(() => false);//_visible);
+          } : null,
         ),
         Visibility(
           visible: _visible,

@@ -16,9 +16,10 @@ class MyService {
     String email = "";
     String name = "";
     List<String> favorited = [];
+    List<String> manage = [];
     Map reserve = Map();
 
-    _user = CustomUser(email, name, favorited, reserve);
+    _user = CustomUser(email, name, favorited, manage, reserve);
 
     String academyName = "dummy";
     List<String> memberList = [];
@@ -31,6 +32,13 @@ class MyService {
 
   late CustomUser _user;
   late AcademyData _academy;
+  late List<String> authList = [
+    "어플 관리자",
+    "학원 관리자",
+    "강사",
+    "학생",
+    "손님",
+  ];
   //late int _authority;
   //late int _room;
   //late Map _reserveList;

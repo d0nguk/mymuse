@@ -106,25 +106,25 @@ class _TabPageState extends State<TabPage> with TickerProviderStateMixin {
 
       bottomNavigationBar: Row(
         children: [
-          Material(
-            color: const Color(0xffff8989),
-            child: InkWell(
-              onTap: () {},
-              child: const SizedBox(
-                height: kToolbarHeight,
-                width: 100,
-                child: Center(
-                  child: Text(
-                    '리뷰',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          // Material(
+          //   color: const Color(0xffff8989),
+          //   child: InkWell(
+          //     onTap: () {},
+          //     child: const SizedBox(
+          //       height: kToolbarHeight,
+          //       width: 100,
+          //       child: Center(
+          //         child: Text(
+          //           '리뷰',
+          //           textAlign: TextAlign.center,
+          //           style: TextStyle(
+          //             fontWeight: FontWeight.bold,
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
           Expanded(
             child: Material(
               color: const Color(0xffff8906),

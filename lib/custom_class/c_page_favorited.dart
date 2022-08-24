@@ -55,7 +55,7 @@ class _FavoritedWidgetState extends State<FavoritedWidget> {
 
   Widget makeViewByList() {
     if(service.user.favorited.isEmpty) {
-      return Text('There is no item');
+      return const Center(child: Text('좋아요 목록이 비어있습니다.'));
       // return ListView(
       //   children: [
       //     AcademyButton(msg: 'My'),

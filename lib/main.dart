@@ -5,12 +5,16 @@ import 'firebase_options.dart';
 import 'pages/login_page.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding binding = WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FlutterNativeSplash.preserve(widgetsBinding: binding);
 
   initializeDateFormatting().then((_) => runApp(const MyApp()));
 
