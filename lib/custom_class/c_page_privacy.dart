@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mymuse/custom_class/c_global.dart';
@@ -80,7 +82,7 @@ class PrivacyWidget extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => LoginPage()), 
                   (route) => false
                 );
-                
+
               },
               child: const Text('예')
             ),
@@ -92,6 +94,53 @@ class PrivacyWidget extends StatelessWidget {
         );
       }
     );
+  }
+
+  void deleteAccount() {
+    showDialog(
+      context: _context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("계정 탈퇴"),
+          content: const Text("정말로 탈퇴하시겠습니까?"),
+          actions: [
+            ElevatedButton(
+              onPressed: () async {
+
+                await deleteAccountOnDB();
+
+                final storage = new FlutterSecureStorage();
+                storage.delete(key: "login");
+
+                Navigator.pushAndRemoveUntil(
+                  context, 
+                  MaterialPageRoute(builder: (context) => LoginPage()), 
+                  (route) => false
+                );
+
+              },
+              child: const Text('예')
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('아니오')
+            ),
+          ],
+        );
+      }
+    );
+  }
+
+  Future<void> deleteAccountOnDB() async {
+    var auth = FirebaseAuth.instance;
+    var store = FirebaseFirestore.instance;
+
+    print(auth.currentUser);
+
+    await auth.currentUser!.delete();
+
+    await store.collection("Users").doc(service.user.email).delete();
   }
 
   final double fontsize = 18;
@@ -164,6 +213,15 @@ class PrivacyWidget extends StatelessWidget {
           FilledButton(
             hintText: Text("로그아웃", style: TextStyle(fontSize: fontsize)),
             func: signout,
+            mainColor: buttonColor,
+            width: double.infinity,
+            height : 70,
+            alignment: Alignment.centerLeft,
+          ),
+          const Padding(padding: EdgeInsets.only(top: 10)),
+          FilledButton(
+            hintText: Text("계정 탈퇴", style: TextStyle(fontSize: fontsize)),
+            func: deleteAccount,
             mainColor: buttonColor,
             width: double.infinity,
             height : 70,

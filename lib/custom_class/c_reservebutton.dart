@@ -77,41 +77,75 @@ class ReserveButtonState extends State<ReserveButton> {
   void reserve() async {
     Map reserve = service.academy.reserve;
     var store = FirebaseFirestore.instance;
-    var v = await store.collection("Academies").doc(service.academy.name).get();
-    var settings = await v.get("Settings");
+    //var v = await store.collection("Academies").doc(service.academy.name).get();
+    //var settings = await v.get("Settings");
 
     // 0 : 예약 가능
     // 1 : 예약 횟수 초과
     // 2 : 경고 누적
     // 3 : 예약 중복
-    // 4 : 권한 없음 << ??
+    // 4 : 권한 없음
     int reserveState = 0;
 
+    // step . 권한 확인
+    Map members = service.academy.members;
+    if(!members.containsKey(service.user.email)) {
+      createSnackBar(context, "회원이 아닙니다. 회원 등록을 먼저 진행해주세요.");
+      reserveTable._func();
+      return;
+    }
+
     // step 1. 예약 가능 횟수 체크
-    if(service.academy.members[service.user.name]["Auth"] > 2) {
+    if(service.academy.members[service.user.email]["Auth"] == 3) {
       if(!checkReserveCount(time)) {
-
-        //createSnackBar(context, "해당 날짜에 더이상 예약을 할 수 없습니다.");
-
-        reserveState = 1;
+        createSnackBar(context, "해당 날짜에 더이상 예약을 할 수 없습니다.");
+        reserveTable._func();
+        return;
       }
     }
 
     // step 2. 경고 여부 체크
+    String denied = members[service.user.email]["Denied"];
+    DateTime now = DateTime.now();
+
+    String nowString = convertDateToString(now).substring(0,8);
+
+    print(denied.compareTo(nowString));
+    if(denied.compareTo("99999999") != 0 && denied.compareTo(nowString) > 0) {
+      createSnackBar(context, "${denied.substring(0,4)}/${denied.substring(4,6)}/${denied.substring(6,8)}까지 예약이 제한되었습니다. 학원 담당자에게 문의해주세요.");
+      reserveTable._func();
+      return;
+    }
 
     // step 3. 예약 중복
     String compareKey = convertDateToString(time).substring(0,12);
     for(String item in service.user.reserve.keys) {
       if(item.substring(0,12).compareTo(compareKey) == 0) {
-        reserveState = 3;
-        break;
+        //reserveState = 3;
+        createSnackBar(context, "동일 시각에 이미 예약이 있습니다.");
+        reserveTable._func();
+        return;
       }
     }
 
+    if(members[service.user.email]["Auth"] == 2 && members[service.user.email]["Remain"] <= 0) {
+        createSnackBar(context, "남은 이용권이 없습니다. 학원 관리자에게 문의해주세요.");
+        reserveTable._func();
+        return;
+    }
+
     if(reserveState == 0) {
+
+      if(members[service.user.email]["Auth"] == 2) {
+        members[service.user.email]["Remain"] -=1 ;
+      }
+
       reserve[convertDateToString(time)] = service.user.name;
       await store.collection("Academies").doc(service.academy.name).update(
-        {"Reserve": reserve}
+        {
+          "Reserve" : reserve,
+          "Members" : members,
+        }
       );
 
       var userReserve = service.user.reserve;

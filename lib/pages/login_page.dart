@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-//import 'package:flutter/services.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -17,8 +15,6 @@ import '../main.dart';
 import 'forgot_password_page.dart';
 import 'main_page.dart';
 import 'signup_route.dart';
-//import 'package:firebase_core/firebase_core.dart';
-//import 'package:myflutterapp/pages/acdemey_info_page.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key? key}) : super(key: key);
@@ -50,7 +46,15 @@ class _LoginPageState extends State<LoginPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) { 
       _asyncLoadMethod();
+
+      // _asyncTest();
     });
+  }
+
+  _asyncTest() async {
+    storage.delete(key: "login");
+
+    FlutterNativeSplash.remove();
   }
 
   _asyncLoadMethod() async {
@@ -64,8 +68,6 @@ class _LoginPageState extends State<LoginPage> {
 
   _asyncMakeMethod() async {
 
-    print(storage);
-
     await storage.write(
       key: "login",
       value: "email ${emailController.text} password ${passwordController.text}",
@@ -77,6 +79,11 @@ class _LoginPageState extends State<LoginPage> {
   _asyncNavigatorMethod() async {
     if(userInfo.isNotEmpty) {
       String email = userInfo.split(" ")[1];
+      String password = userInfo.split(" ")[3];
+
+      var instance = FirebaseAuth.instance;
+
+      await instance.signInWithEmailAndPassword(email: email, password: password);
 
       await getDataByDB(email);
 
@@ -251,7 +258,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> testDB() async {
 /*
-    String academyName = "임시학원3";
+    String academyName = "오드럼의드럼스쿨";
     var members = Map();
     var member = Map();
     var reserve = Map();
@@ -263,13 +270,14 @@ class _LoginPageState extends State<LoginPage> {
     member["Denied"] = "99999999";
     member["Warning"] = 0;
     member["Reserve"] = [];
+    member["Remain"] = -9999;
 
-    members[member["Name"]] = member;
+    members["du10325@gmail.com"] = member;
 
     settings["Open"] = 6;
     settings["Close"] = 23;
     settings["Rooms"] = 2;
-    settings["Subject"] = "보컬";
+    settings["Subject"] = "드럼";
 
     int len = academyName.length;
     for(int i = 0; i < len; ++i) {
@@ -288,10 +296,10 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     //await store.collection("Academies").doc(academyName).set(academy.toJson());
-    await store.collection("Academies").doc(academyName).set(academy.toJson());
+    var store = FirebaseFirestore.instance;
+    await store.collection("Academies").doc(academyName).update(academy.toJson());
+*/
 
-*/  
-    
     // CustomUser my = CustomUser(
     //   "",
     //   "김성은",
@@ -304,11 +312,12 @@ class _LoginPageState extends State<LoginPage> {
 
     // FirebaseAuth.instance.currentUser!.updateDisplayName("김동욱");
 
+
 /*
     Notice notice;
-    String noticeHead = "공지사항3";
-    DateTime time = DateTime(2022,7,21,17,00);
-    String noticeBody = "임시 공지사항입니다.\n";
+    String noticeHead = "어플 테스트 기간입니다.";
+    DateTime time = DateTime(2022,8,30,2,39);
+    String noticeBody = "지금은 어플 테스트 기간입니다.\n각종 버그나 문의사항은\n메일 : duCobwebsoft@gmail.com\n인스타DM : cobwebsoft_official\n로 부탁드리겠습니다.\n\n감사합니다.";
 
     notice = Notice(Timestamp.fromDate(time), noticeHead, noticeBody);
 
@@ -335,6 +344,7 @@ class _LoginPageState extends State<LoginPage> {
     }
 */
 
+/*
     String _name = "임시학원3";
     String _type = "학원";
 
@@ -348,8 +358,39 @@ class _LoginPageState extends State<LoginPage> {
     await store.collection("Academies").doc(_name).update(
       {"Settings" : _settings}
     );
+*/
 
 //    print(await v.get("Members"));
+
+
+    String email = "gahong96@naver.com";
+    String name = "박가홍";
+    int auth = 3;
+    String denied = "99999999";
+    int remain = 0;
+    List<String> reserve = [];
+    int warning = 0;
+
+    Map member = Map();
+
+    member["Auth"] = auth;
+    member["Denined"] = denied;
+    member["Name"] = name;
+    member["Remain"] = remain;
+    member["Reserve"] = reserve;
+    member["Warning"] = warning;
+
+    var store = FirebaseFirestore.instance;
+    var doc = store.collection("Academies").doc("오드럼의드럼스쿨");
+    var v = await doc.get();
+
+    Map members = await v.get("Members");
+
+    members[email] = member;
+
+    await doc.update({
+      "Members" : members
+    });
   }
 
   void signup() { 

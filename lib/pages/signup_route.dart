@@ -126,7 +126,7 @@ class _signup_route extends State<signup_route> {
     }
 
     if(bcomplete){
-      createSnackBar(context, 'Your Account is created successfully!');
+      createSnackBar(context, '계정이 성공적으로 생성되었습니다!');
       Navigator.pop(context);
       setDB();
       instance.currentUser!.updateDisplayName(newuserNameController.text);
@@ -137,12 +137,15 @@ class _signup_route extends State<signup_route> {
     var store = FirebaseFirestore.instance;
     
     List<String> favorited = [];
+    List<String> manage = [];
     Map reserve = Map();
+
 
     final user = <String, dynamic>{
       "Email" : newuserEmailController.text,
       "Name" : newuserNameController.text,
       "Favorited" : favorited,
+      "Manage" : manage,
       "Reserve" : reserve,
     };
 

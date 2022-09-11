@@ -17,7 +17,7 @@ class _ReserveWidgetState extends State<ReserveWidget> {
   late DateTime _focusedDay = DateTime.now();
   late DateTime _selectedDay = DateTime.now();
 
-  late DateTime _firstDay = DateTime.now();
+  late final DateTime _firstDay = DateTime.now();
 
   //late ReserveTable res;
   late Map _reserveList;
@@ -27,29 +27,22 @@ class _ReserveWidgetState extends State<ReserveWidget> {
   List<String> _roomList = [];
   dynamic _selectedRoom;
 
-  late bool bContainUser = false;
-
   @override
   void initState() {
     super.initState();
 
     Map<String, dynamic> members = service.academy.members;
 
-    if(members.containsKey(service.user.name)) {
+    if(members.containsKey(service.user.email)) {
 
-      int auth = service.academy.members[service.user.name]["Auth"]; 
+      int auth = service.academy.members[service.user.email]["Auth"]; 
 
-      addDays = auth <= 2 ? 21 : (auth <= 3 ? 14 : 7);
-
-      if(auth == 4) {
-        _firstDay = DateTime.now().add(const Duration(days:7));
-      }
-
-      bContainUser = true;
+      addDays = auth <= 2 ? 21 : 14;
     }
     else {
-      _firstDay = _firstDay.add(const Duration(days: 7));
-      addDays = 7;
+      createSnackBar(context, "회원이 아니므로, 예약 기능은 이용할 수 없습니다.");
+
+      addDays = 14;
     }
 
     _focusedDay = _firstDay;
@@ -74,25 +67,25 @@ class _ReserveWidgetState extends State<ReserveWidget> {
     //var v = await store.collection("Academies").doc(service.academy.name).get();
     var v = await store.collection("Academies").doc(service.academy.name).get();
 
-    if(!bContainUser){
-      Map users = await v.get("Members");
+    // if(!bContainUser){
+    //   Map users = await v.get("Members");
 
-      var member = Map();
+    //   var member = Map();
 
-      member["Name"] = service.user.name;
-      member["Auth"] = 4;
-      member["Denied"] = "99999999";
-      member["Warning"] = 0;
-      member["Reserve"] = [];
+    //   member["Name"] = service.user.name;
+    //   member["Auth"] = 4;
+    //   member["Denied"] = "99999999";
+    //   member["Warning"] = 0;
+    //   member["Reserve"] = [];
 
-      users[service.user.name] = member;
+    //   users[service.user.name] = member;
 
-      await store.collection("Academies").doc(service.academy.name).update(
-        {"Members" : users}
-      );
+    //   await store.collection("Academies").doc(service.academy.name).update(
+    //     {"Members" : users}
+    //   );
 
-      bContainUser = true;
-    }
+    //   bContainUser = true;
+    // }
 
     String result = "";
 
@@ -115,6 +108,9 @@ class _ReserveWidgetState extends State<ReserveWidget> {
     return Stack(
       children: [
         WillPopScope(
+          onWillPop: _visible ? () {
+            return Future(() => false);//_visible);
+          } : null,
           child: Scaffold(
             appBar: AppBar(
               title: const Text("예약"),
@@ -218,9 +214,6 @@ class _ReserveWidgetState extends State<ReserveWidget> {
               ),
             ),
           ),
-          onWillPop: _visible ? () {
-            return Future(() => false);//_visible);
-          } : null,
         ),
         Visibility(
           visible: _visible,

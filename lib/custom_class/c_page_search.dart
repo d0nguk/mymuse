@@ -94,7 +94,6 @@ class _SearchWidgetState extends State<SearchWidget> {
   Future<String> makeQuery() async {
 
     String text = latestContent;
-    print(latestContent);
     
     if (text == "")
       return Future(() => 'TextValue Is Empty');
@@ -109,19 +108,14 @@ class _SearchWidgetState extends State<SearchWidget> {
         return;// Future(() => 'ResultValue Is Null');
       }
 
-      print(academies);
       for (var item in value.docs) {
         AcademyData academy = AcademyData.fromJson(item.data());
         academies.add(academy);
       }
-      print(academies);
 
       setButtonList();
 
-      print("end of then func");
     });
-
-    print("end of future func");
 
     return Future(() => "Success" );
   }
@@ -157,17 +151,13 @@ class _SearchWidgetState extends State<SearchWidget> {
             future : makeQuery(),
             builder : (BuildContext context, AsyncSnapshot snapshot) {
 
-              print("call futurebuilder");
-
               if(snapshot.hasData == false) {
-                print("indicator");
                 return const CircularProgressIndicator();
               }
               else if(snapshot.hasError) {
                 return const Text('error');
               }
               else {
-                print("return listview");
                 return getList();
               }      
             },

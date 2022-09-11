@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_image/firebase_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -106,7 +107,7 @@ class _AcademyButtonState extends State<AcademyButton> {
         var v = await store.collection("Academies").doc(academyName).get();
         service.curAcademy = AcademyData.fromJson(v.data()!);
         _reserveList = v.get("Reserve");
-        var user = await v.get("Members");
+        //var user = await v.get("Members");
 
         //print(service.authority);
 
@@ -206,7 +207,6 @@ class _AcademyButtonState extends State<AcademyButton> {
           return const Text("Error occured!");
         }
         else {
-          //print(_iconURL);
           //return getButton(true);
           return getButton(true);
         }

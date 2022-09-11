@@ -33,11 +33,10 @@ class MyService {
   late CustomUser _user;
   late AcademyData _academy;
   late List<String> authList = [
-    "어플 관리자",
     "학원 관리자",
     "강사",
+    "이용자",
     "학생",
-    "손님",
   ];
   //late int _authority;
   //late int _room;
@@ -80,15 +79,20 @@ class MyService {
   }
 
   String getDateString(DateTime date) {
+
     String dateString = "";
 
     int hour = date.day >= 13 ? date.day - 12 : date.day;
 
-    dateString += date.year.toString() + "년 ";
-    dateString += date.month.toString() + "월 ";
-    dateString += date.day.toString() + "일 ";
-    dateString += (date.day>=13 ? "오후 " : "오전 ") + hour.toString() + "시 ";
-    dateString += date.minute.toString() + "분";
+    dateString += "${date.year}년 ";
+    dateString += "${date.month}월 ";
+    dateString += "${date.day}일 ";
+
+    String ampm = date.hour >= 12 ? "오후 " : "오전 ";
+    String convertHour = date.hour == 0 ? "12" : (date.hour <= 12) ? date.hour.toString() : (date.hour-12).toString();
+
+    dateString += "$ampm$convertHour시 ";
+    dateString += "${date.minute}분";
 
     return dateString;
   }

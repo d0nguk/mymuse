@@ -14,14 +14,6 @@ class TabPage extends StatefulWidget {
 }
 
 class _TabPageState extends State<TabPage> with TickerProviderStateMixin {
-  late TabController _tabController;
-
-// ignore: non_constant_identifier_names
-  Set<Image> Item = {
-    Image.asset('assets/icon.png'),
-    Image.asset('assets/icon.png'),
-    Image.asset('assets/icon.png'),
-  };
 
   late bool _favorited;
 
@@ -53,11 +45,63 @@ class _TabPageState extends State<TabPage> with TickerProviderStateMixin {
         actions: [
           InkWell(
             onTap: () async {
-
+              
               var store = FirebaseFirestore.instance;
-              var v = await store.collection("Users").doc(service.user.email).get();
+              var v = await store.collection("Academies").doc(service.academy.name);
 
-              List<dynamic> favoritedList = await v.get("Favorited");
+              var gets = await v.get();
+
+              Map<String, dynamic> members = await gets.get("Members");
+
+              //createSnackBar(context, members.keys.contains(service.user.email) ? "멤버입니다" : "멤버가 아닙니다.");
+
+              if(!members.keys.contains(service.user.email)) {
+
+                BuildContext mainContext = context;
+
+                showDialog(
+                  context: context, 
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text("회원 등록"),
+                      content: const Text("회원이 아닙니다.\n회원 신청을 하시겠습니까?"),
+                      actions: [
+                        ElevatedButton(
+                          onPressed: () async {
+
+                            Map request = Map();
+
+                            if(request.keys.contains(service.user.email)) {
+                              createSnackBar(mainContext, "승인 대기중입니다.");
+                            }
+                            else {
+                              request[service.user.email] = service.user.name;
+                              await v.update({"Request" : request});
+                              
+                              createSnackBar(mainContext, "회원 신청이 완료되었습니다. 승인을 기다려주세요.");
+                            }
+
+                            //req.add("test1");
+
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('예')
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('아니오')
+                        ),
+                      ],
+                    );
+                  }
+                );
+              }
+              else {
+                createSnackBar(context, "등록된 회원입니다.");
+              }
+
+              /*
 
               if(_favorited) {
                 favoritedList.remove(service.academy.name);
@@ -76,15 +120,16 @@ class _TabPageState extends State<TabPage> with TickerProviderStateMixin {
                 _favorited = !_favorited;
                 print(_favorited);
               });
+            */
             },
-            child: Icon((_favorited ? Icons.favorite_rounded : Icons.favorite_border)),
+            child: const Icon(Icons.person_add_alt_1),
           ),
         ],
       ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: const [
             // Align(
             //   alignment: Alignment.topLeft,
             //   child: FloatingActionButton(
